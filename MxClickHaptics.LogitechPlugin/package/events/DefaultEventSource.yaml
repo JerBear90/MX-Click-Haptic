@@ -1,0 +1,23 @@
+displayName: MX Click Haptics
+description: Haptic feedback events sent by the MX Click Haptics desktop app.
+events:
+    - name: leftSharpStateChange
+      displayName: Left click - sharp state change
+    - name: leftSubtleCollision
+      displayName: Left click - low
+    - name: leftDampCollision
+      displayName: Left click - medium
+    - name: leftCompleted
+      displayName: Left click - completed
+    - name: leftHappyAlert
+      displayName: Left click - happy alert
+    - name: rightSharpStateChange
+      displayName: Right click - sharp state change
+    - name: rightSubtleCollision
+      displayName: Right click - low
+    - name: rightDampCollision
+      displayName: Right click - medium
+    - name: rightCompleted
+      displayName: Right click - completed
+    - name: rightHappyAlert
+      displayName: Right click - happy alert

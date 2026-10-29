@@ -1,0 +1,63 @@
+﻿<Window x:Class="MxClickHaptics.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MX Click Haptics" Height="540" Width="900" WindowStartupLocation="CenterScreen">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" Text="MX Click Haptics" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,12"/>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,12">
+            <CheckBox x:Name="EnabledCheckBox" Content="Enabled" IsChecked="True" Margin="0,0,20,0" VerticalAlignment="Center"/>
+            <CheckBox x:Name="PausedCheckBox" Content="Paused" Margin="0,0,20,0" VerticalAlignment="Center"/>
+            <CheckBox x:Name="LeftFeedbackCheckBox" Content="Left feedback" IsChecked="True" Margin="0,0,20,0" VerticalAlignment="Center"/>
+            <CheckBox x:Name="RightFeedbackCheckBox" Content="Right feedback" IsChecked="True" VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,12">
+            <TextBlock Text="Output mode" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <ComboBox x:Name="OutputModeCombo" Width="220">
+                <ComboBoxItem Content="Simulated" IsSelected="True"/>
+                <ComboBoxItem Content="Real Logitech output"/>
+            </ComboBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,12">
+            <TextBlock Text="Left amount" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <ComboBox x:Name="LeftAmountCombo" Width="130" Margin="0,0,8,0">
+                <ComboBoxItem Content="Low" Tag="subtle_collision"/>
+                <ComboBoxItem Content="Medium" Tag="damp_collision"/>
+                <ComboBoxItem Content="High" Tag="sharp_state_change"/>
+            </ComboBox>
+            <Button Content="Test left" Margin="0,0,18,0" Padding="10,6" Click="TestLeftFeedbackButton_Click"/>
+            <TextBlock Text="Right amount" VerticalAlignment="Center" Margin="0,0,8,0"/>
+            <ComboBox x:Name="RightAmountCombo" Width="130" Margin="0,0,8,0">
+                <ComboBoxItem Content="Low" Tag="subtle_collision"/>
+                <ComboBoxItem Content="Medium" Tag="damp_collision"/>
+                <ComboBoxItem Content="High" Tag="sharp_state_change"/>
+            </ComboBox>
+            <Button Content="Test right" Padding="10,6" Click="TestRightFeedbackButton_Click"/>
+        </StackPanel>
+
+        <Border Grid.Row="4" BorderBrush="#D0D0D0" BorderThickness="1" Padding="10" CornerRadius="8" Margin="0,0,0,12">
+            <StackPanel>
+                <TextBlock Text="Status" FontWeight="SemiBold"/>
+                <TextBlock x:Name="StatusText" Text="Ready" Margin="0,4,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <Border Grid.Row="5" BorderBrush="#D0D0D0" BorderThickness="1" Padding="10" CornerRadius="8">
+            <DockPanel>
+                <TextBlock Text="Diagnostics" DockPanel.Dock="Top" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                <ListBox x:Name="DiagnosticsList" DockPanel.Dock="Bottom" MinHeight="150"/>
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

@@ -1,0 +1,12 @@
+type: plugin4
+name: MxClickHaptics
+displayName: MX Click Haptics
+description: Sends click haptic events to supported Logitech devices.
+pluginFileName: MxClickHaptics.LogitechPlugin.dll
+version: 1.0
+author: MX Click Haptics
+pluginFolderWin: bin
+pluginCapabilities:
+    - HasHapticMapping
+minimumLoupedeckVersion: 6.0
+license: MIT

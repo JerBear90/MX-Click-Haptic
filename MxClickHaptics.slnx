@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="MxClickHaptics.App/MxClickHaptics.App.csproj" />
+  <Project Path="MxClickHaptics.Core/MxClickHaptics.Core.csproj" />
+  <Project Path="MxClickHaptics.LogitechPlugin/MxClickHaptics.LogitechPlugin.csproj" />
+  <Project Path="MxClickHaptics.Tests/MxClickHaptics.Tests.csproj" />
+</Solution>

@@ -1,0 +1,6 @@
+.vs/
+**/bin/
+**/obj/
+MxClickHaptics.LogitechPlugin/artifacts/
+mx-click-haptics-settings.json
+*.user

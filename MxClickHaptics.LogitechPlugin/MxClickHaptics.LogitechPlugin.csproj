@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>MxClickHaptics.LogitechPlugin</AssemblyName>
+    <RootNamespace>Loupedeck.MxClickHapticsPlugin</RootNamespace>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <PluginApiDir>C:\Program Files\Logi\LogiPluginService\</PluginApiDir>
+    <PluginOutputRoot>$(MSBuildProjectDirectory)\artifacts\$(Configuration)\</PluginOutputRoot>
+    <OutputPath>$(PluginOutputRoot)bin\</OutputPath>
+    <PluginDir>$(LocalAppData)\Logi\LogiPluginService\Plugins\</PluginDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="PluginApi">
+      <HintPath>$(PluginApiDir)PluginApi.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <ProjectReference Include="..\MxClickHaptics.Core\MxClickHaptics.Core.csproj" />
+  </ItemGroup>
+
+  <Target Name="ValidatePluginApi" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(PluginApiDir)PluginApi.dll')"
+           Text="Logi Plugin Service SDK not found at $(PluginApiDir)PluginApi.dll." />
+  </Target>
+
+  <Target Name="CopyPackage" AfterTargets="Build">
+    <ItemGroup>
+      <PackageFiles Include="package\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(PackageFiles)"
+          DestinationFolder="$(PluginOutputRoot)%(RecursiveDir)" />
+  </Target>
+
+  <Target Name="RegisterPlugin" AfterTargets="CopyPackage">
+    <MakeDir Directories="$(PluginDir)" />
+    <WriteLinesToFile File="$(PluginDir)$(AssemblyName).link"
+                      Lines="$(PluginOutputRoot)"
+                      Overwrite="true"
+                      Encoding="UTF-8" />
+    <Message Text="Logitech plugin linked from $(PluginOutputRoot)" Importance="High" />
+  </Target>
+</Project>

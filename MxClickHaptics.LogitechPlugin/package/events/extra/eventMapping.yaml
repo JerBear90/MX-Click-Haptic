@@ -1,0 +1,31 @@
+haptics:
+    leftSharpStateChange:
+        DEFAULT: sharp_state_change
+        MX Master 4: sharp_state_change
+    leftSubtleCollision:
+        DEFAULT: subtle_collision
+        MX Master 4: subtle_collision
+    leftDampCollision:
+        DEFAULT: damp_collision
+        MX Master 4: damp_collision
+    leftCompleted:
+        DEFAULT: completed
+        MX Master 4: completed
+    leftHappyAlert:
+        DEFAULT: happy_alert
+        MX Master 4: happy_alert
+    rightSharpStateChange:
+        DEFAULT: sharp_state_change
+        MX Master 4: sharp_state_change
+    rightSubtleCollision:
+        DEFAULT: subtle_collision
+        MX Master 4: subtle_collision
+    rightDampCollision:
+        DEFAULT: damp_collision
+        MX Master 4: damp_collision
+    rightCompleted:
+        DEFAULT: completed
+        MX Master 4: completed
+    rightHappyAlert:
+        DEFAULT: happy_alert
+        MX Master 4: happy_alert
