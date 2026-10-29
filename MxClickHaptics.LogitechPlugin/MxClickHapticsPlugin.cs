@@ -44,7 +44,9 @@ public sealed class MxClickHapticsPlugin : Plugin
                 "Fired when the corresponding click haptic is sent.");
         }
 
-        _mouseHook = new MouseHookController(OnMouseButtonChanged);
+        _mouseHook = new MouseHookController(
+            OnMouseButtonChanged,
+            ex => PluginLog.Error(ex, "MX Click Haptics mouse hook failed."));
         _serverCancellation = new CancellationTokenSource();
         _serverTask = RunPipeServerAsync(_serverCancellation.Token);
         PluginLog.Info("MX Click Haptics plugin loaded.");
