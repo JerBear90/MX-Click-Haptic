@@ -1,7 +1,6 @@
 using System.Runtime.InteropServices;
-using MxClickHaptics.Core;
 
-namespace MxClickHaptics.App;
+namespace MxClickHaptics.Core;
 
 public sealed class MouseHookController : IDisposable
 {
@@ -16,6 +15,11 @@ public sealed class MouseHookController : IDisposable
         _hookProc = LowLevelMouseProc;
         _hookProcHandle = GCHandle.Alloc(_hookProc);
         _hookHandle = SetWindowsHookEx(WH_MOUSE_LL, _hookProc, IntPtr.Zero, 0);
+        if (_hookHandle == IntPtr.Zero)
+        {
+            _hookProcHandle.Free();
+            throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
+        }
     }
 
     public bool IsHooked => _hookHandle != IntPtr.Zero;

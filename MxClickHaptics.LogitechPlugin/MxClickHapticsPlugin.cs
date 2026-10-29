@@ -1,6 +1,8 @@
 using System.IO.Pipes;
 using System.Text;
 using MxClickHaptics.Core;
+using System.Text.Json;
+using CoreMouseButton = MxClickHaptics.Core.MouseButton;
 
 namespace Loupedeck.MxClickHapticsPlugin;
 
@@ -8,6 +10,7 @@ public sealed class MxClickHapticsPlugin : Plugin
 {
     private CancellationTokenSource? _serverCancellation;
     private Task? _serverTask;
+    private MouseHookController? _mouseHook;
 
     public override bool UsesApplicationApiOnly => true;
     public override bool HasNoApplication => true;
@@ -19,6 +22,7 @@ public sealed class MxClickHapticsPlugin : Plugin
 
     public override void Load()
     {
+        _mouseHook = new MouseHookController(OnMouseButtonChanged);
         _serverCancellation = new CancellationTokenSource();
         _serverTask = RunPipeServerAsync(_serverCancellation.Token);
         PluginLog.Info("MX Click Haptics plugin loaded.");
@@ -26,11 +30,62 @@ public sealed class MxClickHapticsPlugin : Plugin
 
     public override void Unload()
     {
+        _mouseHook?.Dispose();
+        _mouseHook = null;
         _serverCancellation?.Cancel();
         _serverTask?.GetAwaiter().GetResult();
         _serverCancellation?.Dispose();
         _serverCancellation = null;
         _serverTask = null;
+    }
+
+    private void OnMouseButtonChanged(CoreMouseButton button, bool isDown)
+    {
+        if (!isDown)
+        {
+            return;
+        }
+
+        try
+        {
+            var settings = HapticSettings.Load(HapticSettings.DefaultPath);
+            if (!settings.Enabled || settings.Paused)
+            {
+                return;
+            }
+
+            if ((button == CoreMouseButton.Left && !settings.LeftFeedbackEnabled)
+                || (button == CoreMouseButton.Right && !settings.RightFeedbackEnabled))
+            {
+                return;
+            }
+
+            var pulse = new HapticPulse(
+                button,
+                DateTimeOffset.UtcNow,
+                button == CoreMouseButton.Left ? settings.LeftWaveform : settings.RightWaveform);
+            if (LogitechHapticsBridgeProtocol.TryCreateRequest(pulse, out var request)
+                && LogitechHapticsBridgeProtocol.TryGetEventNameFromRequest(request, out var eventName))
+            {
+                PluginEvents.RaiseEvent(eventName);
+            }
+        }
+        catch (IOException ex)
+        {
+            PluginLog.Error(ex, "Unable to read MX Click Haptics settings.");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            PluginLog.Error(ex, "Unable to access MX Click Haptics settings.");
+        }
+        catch (JsonException ex)
+        {
+            PluginLog.Error(ex, "MX Click Haptics settings contain invalid JSON.");
+        }
+        catch (InvalidOperationException ex)
+        {
+            PluginLog.Error(ex, "Logi Plugin Service rejected a haptic event.");
+        }
     }
 
     private async Task RunPipeServerAsync(CancellationToken cancellationToken)

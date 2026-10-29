@@ -1,6 +1,6 @@
 # MX Click Haptics
 
-MX Click Haptics is a Windows desktop control panel and Logitech Actions SDK plugin for sending haptic events when the left or right mouse button is clicked.
+MX Click Haptics is a Logitech Actions SDK plugin for sending haptic events on left and right mouse clicks. It detects clicks inside the Logi Plugin Service; the optional Windows desktop app provides settings and test buttons.
 
 ## Requirements
 
@@ -26,13 +26,13 @@ The plugin project creates a development link under `%LOCALAPPDATA%\Logi\LogiPlu
 dotnet run --project .\MxClickHaptics.App\MxClickHaptics.App.csproj
 ```
 
-Select **Real Logitech output** and set the left and right click amounts independently:
+The app's **Real Logitech output** mode sends test events to the plugin. Set left and right click amounts independently in the plugin's **Haptic Settings** actions:
 
-- **Low** uses `subtle_collision`.
-- **Medium** uses `damp_collision`.
-- **High** uses `sharp_state_change`.
+- **Set Left Click: Low/Medium/High** uses `subtle_collision`, `damp_collision`, or `sharp_state_change`.
+- **Set Right Click: Low/Medium/High** sets the right side independently.
+- Enable/disable actions control each side, and **Pause Click Feedback** / **Enable Click Feedback** pause or resume output.
 
-These are Logitech's named waveform presets, not a continuous intensity control. Use **Test left** and **Test right** to try each setting. With the plugin loaded, mouse clicks send haptic events through the local named-pipe bridge. The plugin maps those events in `MxClickHaptics.LogitechPlugin\package\events\extra\eventMapping.yaml`.
+These are Logitech's named waveform presets, not a continuous intensity control. Use the app's **Test left** and **Test right** buttons to try each setting. Plugin actions and the optional app share settings in `%LOCALAPPDATA%\MX-Click-Haptics\settings.json`. Mouse clicks are detected by the Logitech plugin itself and mapped to the waveforms in `MxClickHaptics.LogitechPlugin\package\events\extra\eventMapping.yaml`.
 
 The app also supports **Simulated** output for testing without the Logitech plugin.
 
@@ -48,4 +48,27 @@ The Logitech SDK lets the plugin raise haptic events but does not confirm that t
 
 ## Logitech Marketplace
 
-The development link created by `dotnet build` is for local testing, not Marketplace distribution. Logitech requires a `.lplug4` package, an icon in the plugin metadata folder, an end-user license agreement, and submission through its [contribution form](https://marketplace.logitech.com/contribute) for review. See Logitech's [Marketplace approval guidelines](https://logitech.github.io/actions-sdk-docs/marketplace-approval-guidelines/) and [C# distribution instructions](https://logitech.github.io/actions-sdk-docs/csharp/plugin-development/distributing-the-plugin/). The installed Plugin Tool/package command still needs to be verified on this machine.
+### Prepared in this repository
+
+- Plugin metadata includes the Marketplace name, version, author, MIT license, homepage, and GitHub Issues support link.
+- A 256x256 plugin icon is included at `MxClickHaptics.LogitechPlugin\package\metadata\Icon256x256.png`. Regenerate it on Windows with `.\tools\GenerateMarketplaceIcon.ps1`.
+- The MIT license/EULA is in `LICENSE` and included as `EULA.txt` in the package.
+- A Release package target runs Logitech's pack and verify commands:
+
+```powershell
+dotnet msbuild .\MxClickHaptics.LogitechPlugin\MxClickHaptics.LogitechPlugin.csproj -target:PackMarketplace -property:Configuration=Release
+```
+
+This requires `logiplugintool` on `PATH`. It is not available in this environment, and the installed `LogiPluginTool.exe` is missing its companion DLL, so a verified `.lplug4` has **not** been produced.
+
+### Remaining blockers before submission
+
+1. **Test self-contained click detection.** The plugin installs its own left/right mouse hook and provides Logitech actions for independent Low/Medium/High presets, enabling/disabling each side, and pausing feedback. Verify the hook and setting actions on supported hardware and Logitech software.
+2. **Accept the Logitech Marketplace Developer Agreement.** The MIT `LICENSE` is included as the user terms/EULA, as approved by the publisher.
+3. **Build and verify a Release `.lplug4`** with the Logitech Plugin Tool. The `PackMarketplace` target is ready, but that tool is not installed/available in this environment.
+4. **Test the installable package** on supported Logitech hardware/software. Development-link testing is not a substitute for installing and testing the Marketplace package.
+5. **Submit** the verified package and listing details through Logitech's [contribution form](https://marketplace.logitech.com/contribute) for approval. Logitech's review is required before Marketplace publication.
+
+The app and plugin currently process mouse button events locally, send them only over a local named pipe, and store settings in a local JSON file; they do not send telemetry to a server. The repository includes a [privacy notice](PRIVACY.md); review it and publish/link it if Logitech requests one. If data collection changes, update the notice before submission.
+
+See Logitech's [Marketplace approval guidelines](https://logitech.github.io/actions-sdk-docs/marketplace-approval-guidelines/), [C# distribution instructions](https://logitech.github.io/actions-sdk-docs/csharp/plugin-development/distributing-the-plugin/), and [plugin structure requirements](https://logitech.github.io/actions-sdk-docs/csharp/tutorial/plugin-structure/).

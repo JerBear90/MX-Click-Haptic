@@ -60,6 +60,10 @@ public sealed class SyntheticInputSource : IInputSource
 public sealed class HapticSettings
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
+    public static string DefaultPath => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "MX-Click-Haptics",
+        "settings.json");
 
     public bool Enabled { get; set; } = true;
     public bool Paused { get; set; }

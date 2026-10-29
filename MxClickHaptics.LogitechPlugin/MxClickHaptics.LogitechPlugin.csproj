@@ -11,6 +11,7 @@
     <PluginOutputRoot>$(MSBuildProjectDirectory)\artifacts\$(Configuration)\</PluginOutputRoot>
     <OutputPath>$(PluginOutputRoot)bin\</OutputPath>
     <PluginDir>$(LocalAppData)\Logi\LogiPluginService\Plugins\</PluginDir>
+    <MarketplacePackagePath>$(MSBuildProjectDirectory)\artifacts\Marketplace\MxClickHaptics_1_0.lplug4</MarketplacePackagePath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -32,14 +33,23 @@
     </ItemGroup>
     <Copy SourceFiles="@(PackageFiles)"
           DestinationFolder="$(PluginOutputRoot)%(RecursiveDir)" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\LICENSE"
+          DestinationFiles="$(PluginOutputRoot)EULA.txt" />
   </Target>
 
-  <Target Name="RegisterPlugin" AfterTargets="CopyPackage">
+  <Target Name="RegisterPlugin" AfterTargets="CopyPackage" Condition="'$(Configuration)' == 'Debug'">
     <MakeDir Directories="$(PluginDir)" />
     <WriteLinesToFile File="$(PluginDir)$(AssemblyName).link"
                       Lines="$(PluginOutputRoot)"
                       Overwrite="true"
                       Encoding="UTF-8" />
     <Message Text="Logitech plugin linked from $(PluginOutputRoot)" Importance="High" />
+  </Target>
+
+  <Target Name="PackMarketplace" DependsOnTargets="Build">
+    <MakeDir Directories="$([System.IO.Path]::GetDirectoryName('$(MarketplacePackagePath)'))" />
+    <Exec Command="logiplugintool pack &quot;$(PluginOutputRoot)&quot; &quot;$(MarketplacePackagePath)&quot;" />
+    <Exec Command="logiplugintool verify &quot;$(MarketplacePackagePath)&quot;" />
+    <Message Text="Verified Marketplace package: $(MarketplacePackagePath)" Importance="High" />
   </Target>
 </Project>

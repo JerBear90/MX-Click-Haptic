@@ -10,8 +10,7 @@ public partial class MainWindow : Window
     private readonly HapticSettings _settings = new();
     private readonly SimulatedOutputAdapter _simulatedOutput = new();
     private readonly RealLogitechOutputAdapter _realOutput = new();
-    private const string SettingsPath = "mx-click-haptics-settings.json";
-    private MouseHookController? _mouseHook;
+    private static readonly string SettingsPath = HapticSettings.DefaultPath;
     private IHapticOutput _activeOutput;
     private HapticController _controller;
 
@@ -19,24 +18,12 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        _settings = HapticSettings.Load(SettingsPath);
+        _settings = LoadSettings();
         _activeOutput = _settings.OutputMode == OutputMode.Real ? _realOutput : _simulatedOutput;
         _controller = new HapticController(_settings, _activeOutput);
 
         ApplyUiFromSettings();
         UpdateStatus();
-        _mouseHook = new MouseHookController(OnMouseButtonChanged);
-    }
-
-    private void OnMouseButtonChanged(MouseButton button, bool isDown)
-    {
-        if (Dispatcher.CheckAccess() == false)
-        {
-            Dispatcher.Invoke(() => OnMouseButtonChanged(button, isDown));
-            return;
-        }
-
-        ProcessInput(button, isDown);
     }
 
     private void ProcessInput(MouseButton button, bool isDown)
@@ -79,6 +66,24 @@ public partial class MainWindow : Window
     private void TestRightFeedbackButton_Click(object sender, RoutedEventArgs e)
     {
         ProcessInput(MouseButton.Right, true);
+    }
+
+    private static HapticSettings LoadSettings()
+    {
+        if (File.Exists(SettingsPath))
+        {
+            return HapticSettings.Load(SettingsPath);
+        }
+
+        const string legacyPath = "mx-click-haptics-settings.json";
+        if (!File.Exists(legacyPath))
+        {
+            return HapticSettings.Load(SettingsPath);
+        }
+
+        var settings = HapticSettings.Load(legacyPath);
+        settings.Save(SettingsPath);
+        return settings;
     }
 
     private void ApplyUiFromSettings()
@@ -175,7 +180,6 @@ public partial class MainWindow : Window
     protected override void OnClosed(EventArgs e)
     {
         base.OnClosed(e);
-        _mouseHook?.Dispose();
         _simulatedOutput.Dispose();
         _realOutput.Dispose();
         _settings.Save(SettingsPath);
