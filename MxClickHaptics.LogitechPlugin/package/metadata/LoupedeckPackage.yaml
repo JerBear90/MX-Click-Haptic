@@ -3,7 +3,7 @@ name: MxClickHaptics
 displayName: MX Click Haptics
 description: Sends click haptic events to supported Logitech devices.
 pluginFileName: MxClickHaptics.LogitechPlugin.dll
-version: 1.1
+version: 1.2
 author: Studio7.website
 copyright: Copyright (c) 2026 Studio7.website
 pluginFolderWin: bin

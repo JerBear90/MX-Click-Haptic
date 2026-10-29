@@ -28,7 +28,7 @@ dotnet run --project .\MxClickHaptics.App\MxClickHaptics.App.csproj
 
 The app's **Real Logitech output** mode sends test events to the plugin. Set left and right click amounts independently in the plugin's **Haptic Settings** actions:
 
-- **Set Left Click: Low/Medium/High** uses `subtle_collision`, `damp_collision`, or `sharp_state_change`.
+- **Set Left Click: Low/Medium/High** uses `subtle_collision`, `damp_collision`, or `sharp_state_change` (mapped to `sharp_collision` on MX Master 4).
 - **Set Right Click: Low/Medium/High** sets the right side independently.
 - Enable/disable actions control each side, and **Pause Click Feedback** / **Enable Click Feedback** pause or resume output.
 
@@ -59,15 +59,14 @@ The Logitech SDK lets the plugin raise haptic events but does not confirm that t
 dotnet msbuild .\MxClickHaptics.LogitechPlugin\MxClickHaptics.LogitechPlugin.csproj -target:PackMarketplace -property:Configuration=Release
 ```
 
-This requires `logiplugintool` on `PATH`. It is not available in this environment, and the installed `LogiPluginTool.exe` is missing its companion DLL, so a verified `.lplug4` has **not** been produced.
+This requires `logiplugintool` on `PATH`. The official Logitech tool is installed as a global .NET tool, and version 1.2 has been built and verified at `MxClickHaptics.LogitechPlugin\artifacts\Marketplace\MxClickHaptics_1_2.lplug4`.
 
 ### Remaining blockers before submission
 
-1. **Test self-contained click detection.** The plugin installs its own left/right mouse hook and provides Logitech actions for independent Low/Medium/High presets, enabling/disabling each side, and pausing feedback. Verify the hook and setting actions on supported hardware and Logitech software.
-2. **Accept the Logitech Marketplace Developer Agreement.** The MIT `LICENSE` is included as the user terms/EULA, as approved by the publisher.
-3. **Build and verify a Release `.lplug4`** with the Logitech Plugin Tool. The `PackMarketplace` target is ready, but that tool is not installed/available in this environment.
-4. **Test the installable package** on supported Logitech hardware/software. Development-link testing is not a substitute for installing and testing the Marketplace package.
-5. **Submit** the verified package and listing details through Logitech's [contribution form](https://marketplace.logitech.com/contribute) for approval. Logitech's review is required before Marketplace publication.
+1. **Accept the Logitech Marketplace Developer Agreement.** The MIT `LICENSE` is included as the user terms/EULA, as approved by the publisher.
+2. **Submit** the verified package and listing details through Logitech's [contribution form](https://marketplace.logitech.com/contribute) for approval. Logitech's review is required before Marketplace publication.
+
+The version 1.2 package was installed and tested with an MX Master 4; left and right test pulses were confirmed.
 
 The app and plugin currently process mouse button events locally, send them only over a local named pipe, and store settings in a local JSON file; they do not send telemetry to a server. The repository includes a [privacy notice](PRIVACY.md); review it and publish/link it if Logitech requests one. If data collection changes, update the notice before submission.
 

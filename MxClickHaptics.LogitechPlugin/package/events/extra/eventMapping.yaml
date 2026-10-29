@@ -1,7 +1,7 @@
 haptics:
     leftSharpStateChange:
         DEFAULT: sharp_state_change
-        MX Master 4: sharp_state_change
+        MX Master 4: sharp_collision
     leftSubtleCollision:
         DEFAULT: subtle_collision
         MX Master 4: subtle_collision
@@ -16,7 +16,7 @@ haptics:
         MX Master 4: happy_alert
     rightSharpStateChange:
         DEFAULT: sharp_state_change
-        MX Master 4: sharp_state_change
+        MX Master 4: sharp_collision
     rightSubtleCollision:
         DEFAULT: subtle_collision
         MX Master 4: subtle_collision
