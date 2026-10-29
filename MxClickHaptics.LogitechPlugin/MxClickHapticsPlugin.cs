@@ -8,6 +8,20 @@ namespace Loupedeck.MxClickHapticsPlugin;
 
 public sealed class MxClickHapticsPlugin : Plugin
 {
+    private static readonly (string Name, string DisplayName)[] HapticEvents =
+    [
+        ("leftSharpStateChange", "Left click - sharp state change"),
+        ("leftSubtleCollision", "Left click - low"),
+        ("leftDampCollision", "Left click - medium"),
+        ("leftCompleted", "Left click - completed"),
+        ("leftHappyAlert", "Left click - happy alert"),
+        ("rightSharpStateChange", "Right click - sharp state change"),
+        ("rightSubtleCollision", "Right click - low"),
+        ("rightDampCollision", "Right click - medium"),
+        ("rightCompleted", "Right click - completed"),
+        ("rightHappyAlert", "Right click - happy alert")
+    ];
+
     private CancellationTokenSource? _serverCancellation;
     private Task? _serverTask;
     private MouseHookController? _mouseHook;
@@ -22,6 +36,14 @@ public sealed class MxClickHapticsPlugin : Plugin
 
     public override void Load()
     {
+        foreach (var hapticEvent in HapticEvents)
+        {
+            PluginEvents.AddEvent(
+                hapticEvent.Name,
+                hapticEvent.DisplayName,
+                "Fired when the corresponding click haptic is sent.");
+        }
+
         _mouseHook = new MouseHookController(OnMouseButtonChanged);
         _serverCancellation = new CancellationTokenSource();
         _serverTask = RunPipeServerAsync(_serverCancellation.Token);

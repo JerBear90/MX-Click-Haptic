@@ -11,7 +11,7 @@
     <PluginOutputRoot>$(MSBuildProjectDirectory)\artifacts\$(Configuration)\</PluginOutputRoot>
     <OutputPath>$(PluginOutputRoot)bin\</OutputPath>
     <PluginDir>$(LocalAppData)\Logi\LogiPluginService\Plugins\</PluginDir>
-    <MarketplacePackagePath>$(MSBuildProjectDirectory)\artifacts\Marketplace\MxClickHaptics_1_0.lplug4</MarketplacePackagePath>
+    <MarketplacePackagePath>$(MSBuildProjectDirectory)\artifacts\Marketplace\MxClickHaptics_1_1.lplug4</MarketplacePackagePath>
   </PropertyGroup>
 
   <ItemGroup>
