@@ -1,0 +1,103 @@
+name: PR check
+
+# The desktop app targets net10.0-windows (WPF). ubuntu-latest cannot build
+# it with the documented command (NETSDK1100).
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  verify:
+    name: Build and test
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: "1"
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+    steps:
+      - name: Fail if the pull request conflicts with main
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_BASE: ${{ github.base_ref }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          for ($attempt = 1; $attempt -le 20; $attempt++) {
+            $pr = gh api "repos/$env:PR_REPO/pulls/$env:PR_NUMBER" | ConvertFrom-Json
+            Write-Host "mergeable=$($pr.mergeable) mergeable_state=$($pr.mergeable_state)"
+            if ($pr.mergeable -eq $false -or $pr.mergeable_state -eq 'dirty') {
+              Write-Host "::error::This pull request has merge conflicts with $env:PR_BASE. Resolve them before it can be verified."
+              exit 1
+            }
+            if ($pr.mergeable -eq $true) {
+              exit 0
+            }
+            Start-Sleep -Seconds 3
+          }
+          Write-Host "::error::Timed out waiting for GitHub to compute whether this pull request merges cleanly into $env:PR_BASE."
+          exit 1
+
+      - name: Checkout pull request merged with main
+        uses: actions/checkout@v7
+
+      - name: Fail if the head conflicts with the latest base branch
+        if: github.event_name == 'pull_request'
+        env:
+          PR_BASE: ${{ github.base_ref }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $false
+          git fetch --no-tags origin "${env:PR_BASE}:refs/remotes/origin/${env:PR_BASE}"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git fetch --no-tags origin $env:PR_HEAD
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git merge-tree --write-tree $env:PR_HEAD "origin/$env:PR_BASE"
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "::error::This branch has merge conflicts with the latest $env:PR_BASE."
+            exit 1
+          }
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      # setup-dotnet's cache input requires a committed packages.lock.json.
+      # This repo does not use NuGet lock files.
+      - name: Cache NuGet packages
+        uses: actions/cache@v6
+        with:
+          path: ${{ github.workspace }}/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Restore dependencies
+        run: dotnet restore .\MxClickHaptics.slnx -nologo --verbosity minimal
+
+      - name: Test
+        run: dotnet test .\MxClickHaptics.slnx -nologo --verbosity minimal --no-restore
+
+      # Builds the whole solution, including the WPF app and the Logitech
+      # plugin. The plugin project fails the build when PluginApi.dll is
+      # absent. That failure already happens on a clean machine; do not
+      # remove this step to make the job green.
+      - name: Build
+        run: dotnet build .\MxClickHaptics.slnx -nologo --verbosity minimal --no-restore

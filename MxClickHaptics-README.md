@@ -42,6 +42,10 @@ The app also supports **Simulated** output for testing without the Logitech plug
 dotnet test .\MxClickHaptics.slnx -nologo --verbosity minimal
 ```
 
+## Pull request checks
+
+Pull requests into `main` and pushes to `main` run [`.github/workflows/pr-check.yml`](.github/workflows/pr-check.yml). The job checks out the pull request merged with the latest `main`, restores NuGet packages with a cache, and runs the `dotnet test` and `dotnet build` commands above on `windows-latest`. It fails when the branch has merge conflicts with `main`. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Limitations
 
 The Logitech SDK lets the plugin raise haptic events but does not confirm that the physical device delivered a pulse. Actual output depends on the connected device and Logitech runtime configuration. The plugin requires the locally installed `PluginApi.dll` and is built for Windows.
